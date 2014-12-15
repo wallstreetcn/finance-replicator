@@ -11,7 +11,7 @@ import time
 import math
 import string
 import redis
-import config
+import settings
 
 from pymysqlreplication import BinLogStreamReader
 from pymysqlreplication.row_event import (

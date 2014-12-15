@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 MYSQL_SETTINGS = {
-    "host": "192.168.11.232",
+    "host": "",
     "port": 3306,
     "user": "root",
-    "passwd": "253Huaerjie!"
+    "passwd": ""
 }
 
 REDIS_SETTINGS = {
-    "host":"192.168.11.222",
+    "host":"",
     "port":6379
 }
 
