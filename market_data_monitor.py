@@ -28,8 +28,10 @@ def main():
         connection_settings=config.MYSQL_SETTINGS,
         server_id=4,
         blocking=True,
-		resume_stream=True,
-        only_tables=["ax_newdata"],
+	#log_file="mysql-bin.000028",
+	#log_pos=706478611,
+	resume_stream=True,
+	only_tables=["ax_newdata"],
         only_events=[DeleteRowsEvent, WriteRowsEvent, UpdateRowsEvent])
    
     now = int(math.floor(time.time()))
@@ -39,30 +41,32 @@ def main():
         statPrefix = "%s:%s:" % (binlogevent.schema,"statistics")
 
         for row in binlogevent.rows:
-            if binlogevent.table.find(config.DB_SETTINGS["newdata"]) == -1:
-                continue
-            elif isinstance(binlogevent, UpdateRowsEvent) and (row["after_values"]["ctime"] < now):
-                #if row["after_values"]["symbol"].find("EURGBP") != -1:
-                #       print "olddata",row["after_values"]["volume"],row["after_values"]["high"],row["after_values"]["symbol"],now,row["after_values"]["ctime"]
-                continue#filter old data
+			#print str(binlogevent.table)
+			if binlogevent.table.find(config.DB_SETTINGS["newdata"]) == -1:
+				#print "newdata"
+				continue
+			elif isinstance(binlogevent, UpdateRowsEvent) and (row["after_values"]["ctime"] < now):
+				#if row["after_values"]["symbol"].find("EURGBP") != -1:
+				#	print "olddata",row["after_values"]["volume"],row["after_values"]["high"],row["after_values"]["symbol"],now,row["after_values"]["ctime"]
+				continue#filter old data
 			elif isinstance(binlogevent, UpdateRowsEvent) and (binlogevent.table.find(config.DB_SETTINGS["newdata"]) != -1):
 				vals = row["after_values"]	
-				
+				#print vals	
 				r.set("lastDbUpdateTime",int(math.floor(time.time())))
 				result = {}
 				result["price"]=vals["bid"]
-                result["timestamp"]=vals["ctime"]
+				result["timestamp"]=vals["ctime"]
 				for k,v in vals.items():
 					if isinstance(v,basestring):
 						result[k.encode("utf-8")] = v.encode("utf-8")
 					else:
 						result[k.encode("utf-8")] = v 
-				r.set("R_" + vals["symbol"],result)
+				r.set("R_" + vals["symbol"],str(result).replace("'","\""))
 						
 				if config.STAT_SETTINGS["enabled"] == "true":	
 					vals["date"] = datetime.now()
 					vals["event"] = time.time()
-					r.hmset(prefix + vals["symbol"], str(result).replace("'","\""))
+					r.hmset(prefix + vals["symbol"], vals)
 					r.incr(statPrefix + "ALL")		
 
 					eventTime = int(math.floor(vals["event"]))
