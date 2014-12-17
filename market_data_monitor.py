@@ -74,13 +74,7 @@ def main():
 
 			
 				print datetime.now(),time.time(),vals["ctime"],vals["symbol"],vals["bid"],vals["ask"],vals["high"],vals["low"]
-            '''elif isinstance(binlogevent, UpdateRowsEvent) and (binlogevent.table.find(config.DB_SETTINGS["finance"]) != -1):
-                vals = row["after_values"]
-                r.hmset(prefix + str(vals["id"]), vals)
-                #print datetime.now(),time.time(),vals["symbol"],vals["open"],vals["prevClose"]
-                print datetime.now(),time.time(),vals
 
-	'''	
     stream.close()
 
 
