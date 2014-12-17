@@ -54,7 +54,7 @@ def main():
 				if config.STAT_SETTINGS["enabled"] == "true":	
 					vals["date"] = datetime.now()
 					vals["event"] = time.time()
-							r.hmset(prefix + vals["symbol"], vals)
+					r.hmset(prefix + vals["symbol"], vals)
 					r.incr(statPrefix + "ALL")		
 
 					eventTime = int(math.floor(vals["event"]))
