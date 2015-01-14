@@ -26,7 +26,7 @@ def main():
 
     stream = BinLogStreamReader(
         connection_settings=config.MYSQL_SETTINGS,
-        server_id=4,
+        server_id=config.SERVER_ID,
         blocking=True,  # log_file="mysql-bin.000028",  #log_pos=706478611,
         resume_stream=True,
         only_tables=["ax_newdata"],
@@ -46,7 +46,7 @@ def main():
             elif isinstance(binlogevent, UpdateRowsEvent) and (row["after_values"]["ctime"] < now):
                 # if row["after_values"]["symbol"].find("EURGBP") != -1:
                 # print "olddata",row["after_values"]["volume"],row["after_values"]["high"],row["after_values"]["symbol"],now,row["after_values"]["ctime"]
-                continue  #filter old data
+                continue  # filter old data
             elif isinstance(binlogevent, UpdateRowsEvent) and (
                         binlogevent.table.find(config.DB_SETTINGS["newdata"]) != -1):
                 vals = row["after_values"]
@@ -57,7 +57,7 @@ def main():
                 # 如果有 price 字段则使用 price 字段作为当前价格，否则使用买一价格
                 result["price"] = vals.get('price')
                 if result["price"] is None or result["price"] <= 0:
-                    result["price"] = vals["bid"]
+                    vals["price"] = result["price"] = vals["bid"]
 
                 result["timestamp"] = vals["ctime"]
                 for k, v in vals.items():
@@ -88,7 +88,8 @@ def main():
                     elif diffTime > 10:
                         r.incr(statPrefix + "B10")
 
-                print datetime.now(), time.time(), vals["ctime"], vals["symbol"], vals["bid"], vals["ask"], vals[
+                print datetime.now(), time.time(), vals["ctime"], vals["symbol"], vals["bid"], vals["price"], vals[
+                    "ask"], vals[
                     "high"], vals["low"]
 
     stream.close()
