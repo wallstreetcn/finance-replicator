@@ -45,7 +45,7 @@ def main():
                 continue
             elif isinstance(binlogevent, UpdateRowsEvent) and (row["after_values"]["ctime"] < now):
                 # if row["after_values"]["symbol"].find("EURGBP") != -1:
-                #	print "olddata",row["after_values"]["volume"],row["after_values"]["high"],row["after_values"]["symbol"],now,row["after_values"]["ctime"]
+                # print "olddata",row["after_values"]["volume"],row["after_values"]["high"],row["after_values"]["symbol"],now,row["after_values"]["ctime"]
                 continue  #filter old data
             elif isinstance(binlogevent, UpdateRowsEvent) and (
                         binlogevent.table.find(config.DB_SETTINGS["newdata"]) != -1):
@@ -56,7 +56,7 @@ def main():
 
                 # 如果有 price 字段则使用 price 字段作为当前价格，否则使用买一价格
                 result["price"] = vals.get('price')
-                if result["price"] <= 0:
+                if result["price"] is None or result["price"] <= 0:
                     result["price"] = vals["bid"]
 
                 result["timestamp"] = vals["ctime"]
@@ -76,7 +76,7 @@ def main():
                     eventTime = int(math.floor(vals["event"]))
                     cTime = vals["ctime"]
                     diffTime = eventTime - cTime
-                    #print eventTime,cTime,diffTime
+                    # print eventTime,cTime,diffTime
                     if diffTime <= 1:
                         r.incr(statPrefix + "1s")
                     elif diffTime <= 3:
