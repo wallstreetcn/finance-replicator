@@ -65,7 +65,14 @@ def main():
                         result[k.encode("utf-8")] = v.encode("utf-8")
                     else:
                         result[k.encode("utf-8")] = v
-                r.set("R_" + vals["symbol"], str(result).replace("'", "\""))
+                redisKey = "R_" + vals["symbol"]
+                oldValue = r.get(redisKey)
+
+                # redis 中的数据要晚于 binlog 数据，则不覆盖老数据
+                if oldValue is not None and oldValue.get("timestamp") > result["timestamp"]:
+                    continue
+
+                r.set(redisKey, str(result).replace("'", "\""))
 
                 if config.STAT_SETTINGS["enabled"] == "true":
                     vals["date"] = datetime.now()
