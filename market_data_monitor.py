@@ -62,8 +62,6 @@ def main():
                 result["timestamp"] = vals["ctime"]
 
                 for k, v in vals.items():
-                    if v is None:
-                        v = "null"
                     if isinstance(v, basestring):
                         result[k.encode("utf-8")] = v.encode("utf-8")
                     else:
