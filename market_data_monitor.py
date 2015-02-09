@@ -12,7 +12,7 @@ import math
 import string
 import redis
 import settings as config
-
+import json
 from pymysqlreplication import BinLogStreamReader
 from pymysqlreplication.row_event import (
     DeleteRowsEvent,
@@ -60,17 +60,17 @@ def main():
                     vals["price"] = result["price"] = vals["bid"]
 
                 result["timestamp"] = vals["ctime"]
+
                 for k, v in vals.items():
+                    if v is None:
+                        v = "null"
                     if isinstance(v, basestring):
                         result[k.encode("utf-8")] = v.encode("utf-8")
                     else:
                         result[k.encode("utf-8")] = v
-                redisKey = "R_" + vals["symbol"]
-                oldValue = r.get(redisKey)
 
-                # redis 中的数据要晚于 binlog 数据，则不覆盖老数据
-                if oldValue is not None and oldValue.get("timestamp") > result["timestamp"]:
-                    continue
+                redisKey = "R_" + vals["symbol"]
+
 
                 r.set(redisKey, str(result).replace("'", "\""))
 
