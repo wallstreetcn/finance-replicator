@@ -38,7 +38,7 @@ def main():
         prefix = "%s:%s:" % (binlogevent.schema, binlogevent.table)
         statPrefix = "%s:%s:" % (binlogevent.schema, "statistics")
         data2redis = {}
-        binlogStartTime = datetime.datetime.now()
+        binlogStartTime = datetime.now()
         for row in binlogevent.rows:
             # print str(binlogevent.table)
             if binlogevent.table.find(config.DB_SETTINGS["newdata"]) == -1:
@@ -94,14 +94,17 @@ def main():
                     elif diffTime > 10:
                         redisConn.incr(statPrefix + "B10")
 
-                print datetime.now(), time.time(), vals["ctime"], vals["symbol"], vals["bid"], vals["price"], vals[
-                    "ask"], vals[
-                    "high"], vals["low"]
-        redisStartTime = datetime.datetime.now()
-        if len(data2redis) > 0:
+                        # print datetime.now(), time.time(), vals["ctime"], vals["symbol"], vals["bid"], vals["price"], vals[
+                        #    "ask"], vals[
+                        #    "high"], vals["low"]
+
+        redisStartTime = datetime.now()
+        data2redisLen = len(data2redis)
+        if data2redisLen > 0:
             redisConn.mset(data2redis)
-        redisEndTime = datetime.datetime.now()
-        print 'redis insert cost: ' + (redisEndTime - redisStartTime).seconds
+        redisEndTime = datetime.now()
+        print 'data to redis length: ' + str(redisStartTime) + 'insert time cost: ' + (
+        redisEndTime - redisStartTime).seconds
 
     stream.close()
 
