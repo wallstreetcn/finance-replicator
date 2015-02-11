@@ -9,7 +9,7 @@
 from datetime import *
 import time
 import math
-import string
+import datetime
 import redis
 import settings as config
 import json
@@ -38,6 +38,7 @@ def main():
         prefix = "%s:%s:" % (binlogevent.schema, binlogevent.table)
         statPrefix = "%s:%s:" % (binlogevent.schema, "statistics")
         data2redis = {}
+        binlogStartTime = datetime.datetime.now()
         for row in binlogevent.rows:
             # print str(binlogevent.table)
             if binlogevent.table.find(config.DB_SETTINGS["newdata"]) == -1:
@@ -96,9 +97,11 @@ def main():
                 print datetime.now(), time.time(), vals["ctime"], vals["symbol"], vals["bid"], vals["price"], vals[
                     "ask"], vals[
                     "high"], vals["low"]
-
+        redisStartTime = datetime.datetime.now()
         if len(data2redis) > 0:
             redisConn.mset(data2redis)
+        redisEndTime = datetime.datetime.now()
+        print 'redis insert cost: ' + (redisEndTime - redisStartTime).seconds
 
     stream.close()
 
